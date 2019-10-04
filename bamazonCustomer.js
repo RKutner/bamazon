@@ -29,17 +29,21 @@ const showInventory = () => {
 const shop = () => {
     inquirer
         .prompt([{
-            message: "Enter the ID of the item you would like to buy. Format is ID Product Department Price Stock",
+            message: "Enter the ID of the item you would like to buy. Format is ID Product Department Price Stock\n",
             type: "input",
             name: "id"
-        }]).then (function(answer){
-            connection.query("")
+        }]).then(function (answer) {
+            connection.query(`SELECT stock_quantity FROM products WHERE item_id=${answer.id};`);
+            console.log(answer.stock_quantity);
+            // if (currentStock > 0) {
+            //     connection.query(`UPDATE products SET stock_quantity = stock_quantity - 1 WHERE item_id = ${answer.id} and stock_quantity > 0;`);
+            // } else { console.log("We're sorry, that's out of stock.") }
+            connection.end();
         })
 }
 
 connection.connect(function (err) {
     if (err) throw err;
     showInventory();
-    shop()
-    connection.end();
+    shop();
 });
