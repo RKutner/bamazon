@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer")
+const stock=[];
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -20,30 +21,35 @@ const showInventory = () => {
     connection.query("SELECT * FROM products;", function (err, res) {
         if (err) throw err;
         for (let i = 0; i < res.length; i++) {
-            console.log(res[i].item_id, res[i].product_name, res[i].department_name, res[i].price);
+            stock.push(res[i].stock_quantity)
+            console.log(res[i].item_id, res[i].product_name, res[i].department_name, res[i].price,);
         }
     })
-
 }
 
 const shop = () => {
     inquirer
         .prompt([{
-            message: "Enter the ID of the item you would like to buy. Format is ID Product Department Price Stock\n",
+            message: "Enter the ID of the item you would like to buy. Format is ID Product Department Price\n",
             type: "input",
             name: "id"
         }]).then(function (answer) {
-            connection.query(`SELECT stock_quantity FROM products WHERE item_id=${answer.id};`);
-            console.log(answer.stock_quantity);
-            // if (currentStock > 0) {
-            //     connection.query(`UPDATE products SET stock_quantity = stock_quantity - 1 WHERE item_id = ${answer.id} and stock_quantity > 0;`);
-            // } else { console.log("We're sorry, that's out of stock.") }
+            connection.query(`SELECT stock_quantity from PRODUCTS WHERE item_id=${answer.id}`, function(err, res){
+                if (err) throw err;
+                console.log(res[0]);
+                if (res[0]<1){console.log("Sorry, seems like we're fresh out right now!")
+            } else{
+                            connection.query(`UPDATE products SET stock_quantity=stock_quantity-1 WHERE item_id=${answer.id};`)
+            console.log("Sold, to the weird guy sitting at his computer!")}
             connection.end();
+            })
+
         })
-}
+        }
+
 
 connection.connect(function (err) {
     if (err) throw err;
-    showInventory();
+    // showInventory();
     shop();
 });
