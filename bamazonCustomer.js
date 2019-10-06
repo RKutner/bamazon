@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer")
-const stock=[];
+const stock = [];
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -22,7 +22,7 @@ const showInventory = () => {
         if (err) throw err;
         for (let i = 0; i < res.length; i++) {
             stock.push(res[i].stock_quantity)
-            console.log(res[i].item_id, res[i].product_name, res[i].department_name, res[i].price,);
+            console.log(res[i].item_id, res[i].product_name, res[i].department_name, res[i].price);
         }
     })
 }
@@ -34,22 +34,23 @@ const shop = () => {
             type: "input",
             name: "id"
         }]).then(function (answer) {
-            connection.query(`SELECT stock_quantity from PRODUCTS WHERE item_id=${answer.id}`, function(err, res){
+            connection.query(`SELECT stock_quantity from PRODUCTS WHERE item_id=${answer.id}`, function (err, res) {
                 if (err) throw err;
-                console.log(res[0]);
-                if (res[0]<1){console.log("Sorry, seems like we're fresh out right now!")
-            } else{
-                            connection.query(`UPDATE products SET stock_quantity=stock_quantity-1 WHERE item_id=${answer.id};`)
-            console.log("Sold, to the weird guy sitting at his computer!")}
-            connection.end();
+                if (res[0].stock_quantity < 1) {
+                    ("Sorry, seems like we're fresh out right now!")
+                } else {
+                    connection.query(`UPDATE products SET stock_quantity=stock_quantity-1 WHERE item_id=${answer.id};`)
+                    console.log("Sold, to the weird guy sitting at his computer!")
+                }
+                connection.end();
             })
-
+            
         })
-        }
+}
 
 
 connection.connect(function (err) {
     if (err) throw err;
-    // showInventory();
+    showInventory();
     shop();
 });
